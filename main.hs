@@ -5,8 +5,7 @@ import System.Environment
 import Control.Monad
 import Control.Monad.Error 
 
-import Lex
-import Eval
+import Scheme
 
 
 -- Use parseExpr to parse the given input 
