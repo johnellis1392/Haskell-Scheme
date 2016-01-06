@@ -25,7 +25,20 @@ primitives = [("+", numericBinop (+)),
               ("remainder", numericBinop rem),
               ("string?", is_string),
               ("number?", is_number),
-              ("symbol?", is_symbol)] 
+              ("symbol?", is_symbol),
+              ("=", numBoolBinop (==)),
+              ("<", numBoolBinop (<)),
+              (">", numBoolBinop (>)),
+              ("/=", numBoolBinop (/=)),
+              (">=", numBoolBinop (>=)),
+              ("<=", numBoolBinop (<=)),
+              ("&&", boolBoolBinop (&&)),
+              ("||", boolBoolBinop (||)),
+              ("string=?", strBoolBinop (==)),
+              ("string<?", strBoolBinop (<)),
+              ("string>?", strBoolBinop (>)),
+              ("string<=?", strBoolBinop (<=)),
+              ("string>=?", strBoolBinop (>=))] 
 
 
 
@@ -51,13 +64,23 @@ unpackNum (String n) = let parsed = reads n
                           else return $ fst $ parsed !! 0 
 unpackNum (List [n]) = unpackNum n
 unpackNum notNum = throwError $ TypeMismatch "number" notNum 
---unpackNum _ = 0
 
---unpackNum (String s) = let parsed = reads s :: [(Integer, String)]
---                       in if null parsed
---                          then 0
---                          else fst $ parsed !! 0
---unpackNum (List [n]) = unpackNum n
+
+
+-- Unpack a string
+unpackStr :: LispVal -> ThrowsError String
+unpackStr (String s) = return s
+unpackStr (Number s) = return $ show s
+unpackStr (Bool s) = return $ show s
+unpackStr notString = throwError $ TypeMismatch "string" notString
+
+
+
+-- Unpack a Boolean
+unpackBool :: LispVal -> ThrowsError Bool
+unpackBool (Bool b) = return b
+unpackBool notBool = throwError $ TypeMismatch "boolean" notBool 
+
 
 
 
@@ -75,6 +98,33 @@ is_number _ = return $ Bool False
 is_symbol :: [LispVal] -> ThrowsError LispVal 
 is_symbol (Atom _:[]) = return $ Bool True 
 is_symbol _ = return $ Bool False 
+
+
+-- This base function is a helper function that
+-- parameterizes the operation evaluation process. 
+boolBinop :: (LispVal -> ThrowsError a) -> (a -> a -> Bool) -> [LispVal] -> ThrowsError LispVal
+boolBinop unpacker op args = if length args /= 2
+                             then throwError $ NumArgs 2 args 
+                             else do
+                               left <- unpacker $ args !! 0
+                               right <- unpacker $ args !! 1
+                               return $ Bool $ left `op` right 
+
+
+
+-- Utility functions for evaluating binary boolean operations.
+-- These functions curry the above boolBinop function with
+-- different unpacking functions. 
+numBoolBinop :: (Integer -> Integer -> Bool) -> [LispVal] -> ThrowsError LispVal 
+numBoolBinop = boolBinop unpackNum 
+
+
+boolBoolBinop :: (Bool -> Bool -> Bool) -> [LispVal] -> ThrowsError LispVal 
+boolBoolBinop = boolBinop unpackBool 
+
+
+strBoolBinop :: (String -> String -> Bool) -> [LispVal] -> ThrowsError LispVal 
+strBoolBinop = boolBinop unpackStr 
 
 
 
