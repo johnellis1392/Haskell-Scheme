@@ -7,6 +7,7 @@ import Scheme.Lex.LispVal
 import Scheme.Eval.LispError
 import Scheme.Eval.Prim 
 
+
 -- Eval function for evaluating data types.
 -- Here, the val@(String _) value binds "val" to
 -- the whole (String _) expression instead of
@@ -24,7 +25,14 @@ eval val@(String _) = return val
 eval val@(Number _) = return val
 eval val@(Bool _) = return val
 eval (List [Atom "quote", val]) = return val 
---eval (List (Atom f : args)) = apply f $ map eval args
+
+-- Evaluate block for If Statement 
+eval (List [Atom "if", pred, conseq, alt]) = do
+  result <- eval pred
+  case result of
+    Bool False -> eval alt
+    otherwise  -> eval conseq 
+
 eval (List (Atom f : args)) = mapM eval args >>= apply f 
 eval badForm = throwError $ BadSpecialForm "Unrecognized special form" badForm 
 
