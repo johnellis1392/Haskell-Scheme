@@ -9,7 +9,7 @@ output:=parser
 main:=main.hs
 
 ghc:=ghc
-ghc_flags:=--make -package parsec 
+ghc_flags:=--make -package parsec -fglasgow-exts -XExistentialQuantification 
 
 
 build: $(scheme_files) 

@@ -7,7 +7,8 @@ module Scheme.Eval (
   module Scheme.Eval.Prim,
   module Scheme.Eval.EvalUtil,
   module Scheme.Eval.List,
-  module Scheme.Eval.Comp 
+  module Scheme.Eval.Comp,
+  module Scheme.Eval.Unpack 
 ) where
 
 
@@ -19,5 +20,6 @@ import Scheme.Eval.Prim
 import Scheme.Eval.EvalUtil
 import Scheme.Eval.List
 import Scheme.Eval.Comp
+import Scheme.Eval.Unpack
 
 

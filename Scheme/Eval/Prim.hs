@@ -44,7 +44,8 @@ primitives = [("+", numericBinop (+)),
               ("car", car),
               ("cdr", cdr),
               ("cons", cons),
-              ("eqv?", eqv)] 
+              ("eqv?", eqv),
+              ("equal?", equal)] 
 
 
 

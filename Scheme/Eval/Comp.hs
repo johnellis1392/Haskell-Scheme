@@ -8,6 +8,7 @@ import Control.Monad.Error
 import Scheme.Lex.LispVal
 import Scheme.Eval.LispError
 import Scheme.Eval.List
+import Scheme.Eval.Unpack 
 
 
 -- This function takes the name of some function,
@@ -20,35 +21,6 @@ numericBinop op [] = throwError $ NumArgs 2 []
 numericBinop op singleVal@[_] = throwError $ NumArgs 2 singleVal 
 --numericBinop op params = Number $ foldl1 op $ map unpackNum params
 numericBinop op params = mapM unpackNum params >>= return . Number . foldl1 op 
-
-
--- Unpack a numerical argument. If the argument is
--- a string, then try to convert it to a string. 
-unpackNum :: LispVal -> ThrowsError Integer
-unpackNum (Number n) = return n
-unpackNum (String n) = let parsed = reads n
-                       in if null parsed
-                          then throwError $ TypeMismatch "number" $ String n
-                          else return $ fst $ parsed !! 0 
-unpackNum (List [n]) = unpackNum n
-unpackNum notNum = throwError $ TypeMismatch "number" notNum 
-
-
-
--- Unpack a string
-unpackStr :: LispVal -> ThrowsError String
-unpackStr (String s) = return s
-unpackStr (Number s) = return $ show s
-unpackStr (Bool s) = return $ show s
-unpackStr notString = throwError $ TypeMismatch "string" notString
-
-
-
--- Unpack a Boolean
-unpackBool :: LispVal -> ThrowsError Bool
-unpackBool (Bool b) = return b
-unpackBool notBool = throwError $ TypeMismatch "boolean" notBool 
-
 
 
 
@@ -111,6 +83,18 @@ eqv [(List x), (List y)] = return $ Bool $ (length x == length y) && (all eqvPai
 eqv [_, _] = return $ Bool False
 eqv badArgList = throwError $ NumArgs 2 badArgList 
 
+
+
+-- Compare ignoring types
+equal :: [LispVal] -> ThrowsError LispVal
+equal [x, y] = do
+  primitiveEquals <- liftM or $ mapM (unpackEquals x y)
+                     [AnyUnpacker unpackNum,
+                      AnyUnpacker unpackStr,
+                      AnyUnpacker unpackBool]
+  eqvEquals <- eqv [x, y]
+  return $ Bool $ (primitiveEquals || let (Bool x') = eqvEquals in x')
+equal badArgList = throwError $ NumArgs 2 badArgList
 
 
 
