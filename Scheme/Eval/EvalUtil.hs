@@ -33,6 +33,12 @@ eval (List [Atom "if", pred, conseq, alt]) = do
     Bool False -> eval alt
     otherwise  -> eval conseq 
 
+-- Eval's for list operations 
+eval (List (Atom "car" : args)) = mapM eval args >>= car 
+eval (List (Atom "cdr" : args)) = mapM eval args >>= cdr
+eval (List (Atom "cons" : args)) = mapM eval args >>= cons 
+
+-- Apply a function call to a list of arguments 
 eval (List (Atom f : args)) = mapM eval args >>= apply f 
 eval badForm = throwError $ BadSpecialForm "Unrecognized special form" badForm 
 
