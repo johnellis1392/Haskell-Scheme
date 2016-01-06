@@ -6,6 +6,7 @@ import Control.Monad.Error
 import Scheme.Lex.LispVal
 import Scheme.Eval.LispError
 import Scheme.Eval.Prim 
+import Scheme.Eval.List
 
 
 -- Eval function for evaluating data types.
@@ -32,11 +33,6 @@ eval (List [Atom "if", pred, conseq, alt]) = do
   case result of
     Bool False -> eval alt
     otherwise  -> eval conseq 
-
--- Eval's for list operations 
-eval (List (Atom "car" : args)) = mapM eval args >>= car 
-eval (List (Atom "cdr" : args)) = mapM eval args >>= cdr
-eval (List (Atom "cons" : args)) = mapM eval args >>= cons 
 
 -- Apply a function call to a list of arguments 
 eval (List (Atom f : args)) = mapM eval args >>= apply f 

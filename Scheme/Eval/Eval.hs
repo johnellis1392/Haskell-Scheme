@@ -5,7 +5,9 @@
 module Scheme.Eval (
   module Scheme.Eval.LispError,
   module Scheme.Eval.Prim,
-  module Scheme.Eval.EvalUtil 
+  module Scheme.Eval.EvalUtil,
+  module Scheme.Eval.List,
+  module Scheme.Eval.Comp 
 ) where
 
 
@@ -15,5 +17,7 @@ import Scheme.Lex
 import Scheme.Eval.LispError
 import Scheme.Eval.Prim
 import Scheme.Eval.EvalUtil
+import Scheme.Eval.List
+import Scheme.Eval.Comp
 
 
