@@ -8,6 +8,7 @@ import Control.Monad.Error
 import System.IO
 import Scheme.Eval
 import Scheme.Lex 
+import Scheme.Env 
 
 
 -- New version of readExpr that handles errors 
@@ -35,13 +36,13 @@ readPrompt prompt = flushStr prompt >> getLine
 -- and return an IO monad encapsulating the string.
 -- (Self-explanatory except I wanted to explain it
 -- to myslef). 
-evalString :: String -> IO String
-evalString expr = return $ extractValue $ trapError (liftM show $ readExpr expr >>= eval) 
+evalString :: Env -> String -> IO String
+evalString env expr = runIOThrows $ liftM show $ (liftThrows $ readExpr expr) >>= eval env 
 
 
 -- Evaluate a string and print the result
-evalAndPrint :: String -> IO ()
-evalAndPrint expr = evalString expr >>= putStrLn
+evalAndPrint :: Env -> String -> IO ()
+evalAndPrint env expr = evalString env expr >>= putStrLn
 
 
 -- Self-generated infinite loop
@@ -53,9 +54,15 @@ until_ pred prompt action = do
     else action result >> until_ pred prompt action 
 
 
+-- Run one expression
+runOne :: String -> IO ()
+runOne expr = nullEnv >>= flip evalAndPrint expr 
+
+
 -- Run a reply INFINITLEY 
 runRepl :: IO ()
-runRepl = until_ (== "quit") (readPrompt "Lisp >>> ") evalAndPrint 
+runRepl = nullEnv >>= until_ (== "quit") (readPrompt "Lisp >>> ") . evalAndPrint 
+
 
 
 

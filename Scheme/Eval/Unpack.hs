@@ -5,14 +5,15 @@ module Scheme.Eval.Unpack where
 import Control.Monad.Error 
 import Scheme.Eval.LispError 
 import Scheme.Lex.LispVal 
+import Scheme.Env
 
 
 -- Unpacker value
-data Unpacker = forall a . Eq a => AnyUnpacker (LispVal -> ThrowsError a)
+data Unpacker = forall a . Eq a => AnyUnpacker (LispVal -> IOThrowsError a)
 
 
 -- Simultaneously unpack two values and compare 
-unpackEquals :: LispVal -> LispVal -> Unpacker -> ThrowsError Bool
+unpackEquals :: LispVal -> LispVal -> Unpacker -> IOThrowsError Bool
 unpackEquals x1 x2 (AnyUnpacker unpacker) = do
   u1 <- unpacker x1
   u2 <- unpacker x2
@@ -23,7 +24,7 @@ unpackEquals x1 x2 (AnyUnpacker unpacker) = do
 
 -- Unpack a numerical argument. If the argument is
 -- a string, then try to convert it to a string. 
-unpackNum :: LispVal -> ThrowsError Integer
+unpackNum :: LispVal -> IOThrowsError Integer
 unpackNum (Number n) = return n
 unpackNum (String n) = let parsed = reads n
                        in if null parsed
@@ -35,7 +36,7 @@ unpackNum notNum = throwError $ TypeMismatch "number" notNum
 
 
 -- Unpack a string
-unpackStr :: LispVal -> ThrowsError String
+unpackStr :: LispVal -> IOThrowsError String
 unpackStr (String s) = return s
 unpackStr (Number s) = return $ show s
 unpackStr (Bool s) = return $ show s
@@ -44,7 +45,7 @@ unpackStr notString = throwError $ TypeMismatch "string" notString
 
 
 -- Unpack a Boolean
-unpackBool :: LispVal -> ThrowsError Bool
+unpackBool :: LispVal -> IOThrowsError Bool
 unpackBool (Bool b) = return b
 unpackBool notBool = throwError $ TypeMismatch "boolean" notBool 
 

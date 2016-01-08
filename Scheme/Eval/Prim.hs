@@ -9,6 +9,7 @@ import Scheme.Lex.LispVal
 import Scheme.Eval.LispError
 import Scheme.Eval.List
 import Scheme.Eval.Comp
+import Scheme.Env 
 
 
 -- A list of default functions. These values
@@ -17,7 +18,7 @@ import Scheme.Eval.Comp
 -- The function lookup will look up some string
 -- in a list of tuples like this, and return the
 -- function associated with the given string. 
-primitives :: [(String, [LispVal] -> ThrowsError LispVal)]
+primitives :: [(String, [LispVal] -> IOThrowsError LispVal)]
 primitives = [("+", numericBinop (+)),
               ("-", numericBinop (-)),
               ("*", numericBinop (*)),

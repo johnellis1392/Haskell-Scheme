@@ -7,6 +7,7 @@ import Scheme.Lex.LispVal
 import Scheme.Eval.LispError
 import Scheme.Eval.Prim 
 import Scheme.Eval.List
+import Scheme.Env
 
 
 -- Eval function for evaluating data types.
@@ -21,22 +22,27 @@ import Scheme.Eval.List
 --
 -- mapM maps a monadic function over a list of monadic
 -- values. 
-eval :: LispVal -> ThrowsError LispVal
-eval val@(String _) = return val
-eval val@(Number _) = return val
-eval val@(Bool _) = return val
-eval (List [Atom "quote", val]) = return val 
+eval :: Env -> LispVal -> IOThrowsError LispVal
+eval env val@(String _) = return val
+eval env val@(Number _) = return val
+eval env val@(Bool _) = return val
+eval env (Atom id) = getVar env id 
+eval env (List [Atom "quote", val]) = return val 
 
 -- Evaluate block for If Statement 
-eval (List [Atom "if", pred, conseq, alt]) = do
-  result <- eval pred
+eval env (List [Atom "if", pred, conseq, alt]) = do
+  result <- eval env pred 
   case result of
-    Bool False -> eval alt
-    otherwise  -> eval conseq 
+    Bool False -> eval env alt
+    otherwise  -> eval env conseq 
+
+-- Functions for defining variables
+eval env (List [Atom "set!", Atom var, form]) = eval env form >>= setVar env var
+eval env (List [Atom "define", Atom var, form]) = eval env form >>= defineVar env var 
 
 -- Apply a function call to a list of arguments 
-eval (List (Atom f : args)) = mapM eval args >>= apply f 
-eval badForm = throwError $ BadSpecialForm "Unrecognized special form" badForm 
+eval env (List (Atom f : args)) = mapM (eval env) args >>= apply f 
+eval env badForm = throwError $ BadSpecialForm "Unrecognized special form" badForm 
 
 
 -- Apply a function to a set of arguments.
@@ -45,7 +51,7 @@ eval badForm = throwError $ BadSpecialForm "Unrecognized special form" badForm
 -- something is found, apply it to the given
 -- function ($ args), if not then return a
 -- boolean false value. 
-apply :: String -> [LispVal] -> ThrowsError LispVal
+apply :: String -> [LispVal] -> IOThrowsError LispVal
 --apply f args = maybe (Bool False) ($ args) $ lookup f primitives
 apply f args = maybe
                (throwError $ NotFunction "Unrecognized primitive function args" f)
