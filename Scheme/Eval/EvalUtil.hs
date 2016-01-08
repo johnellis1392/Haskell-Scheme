@@ -41,7 +41,7 @@ eval env (List [Atom "set!", Atom var, form]) = eval env form >>= setVar env var
 eval env (List [Atom "define", Atom var, form]) = eval env form >>= defineVar env var 
 
 -- Apply a function call to a list of arguments 
-eval env (List (Atom f : args)) = mapM (eval env) args >>= apply f 
+eval env (List (Atom f : args)) = mapM (eval env) args >>= liftThrows . apply f 
 eval env badForm = throwError $ BadSpecialForm "Unrecognized special form" badForm 
 
 
@@ -51,7 +51,7 @@ eval env badForm = throwError $ BadSpecialForm "Unrecognized special form" badFo
 -- something is found, apply it to the given
 -- function ($ args), if not then return a
 -- boolean false value. 
-apply :: String -> [LispVal] -> IOThrowsError LispVal
+apply :: String -> [LispVal] -> ThrowsError LispVal
 --apply f args = maybe (Bool False) ($ args) $ lookup f primitives
 apply f args = maybe
                (throwError $ NotFunction "Unrecognized primitive function args" f)

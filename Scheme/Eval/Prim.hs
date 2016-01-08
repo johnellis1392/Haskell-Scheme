@@ -18,7 +18,7 @@ import Scheme.Env
 -- The function lookup will look up some string
 -- in a list of tuples like this, and return the
 -- function associated with the given string. 
-primitives :: [(String, [LispVal] -> IOThrowsError LispVal)]
+primitives :: [(String, [LispVal] -> ThrowsError LispVal)]
 primitives = [("+", numericBinop (+)),
               ("-", numericBinop (-)),
               ("*", numericBinop (*)),
