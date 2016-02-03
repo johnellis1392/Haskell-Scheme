@@ -4,10 +4,10 @@ module Scheme.Eval.EvalUtil where
 --import Text.ParserCombinators.Parsec
 import Control.Monad.Error 
 import Scheme.Lex.LispVal
-import Scheme.Eval.LispError
+-- import Scheme.Eval.LispError
 import Scheme.Eval.Prim 
 import Scheme.Eval.List
-import Scheme.Env
+-- import Scheme.Env
 
 
 -- Eval function for evaluating data types.

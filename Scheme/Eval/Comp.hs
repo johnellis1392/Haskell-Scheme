@@ -6,7 +6,7 @@ import Text.ParserCombinators.Parsec
 import Control.Monad.Error 
 
 import Scheme.Lex.LispVal
-import Scheme.Eval.LispError
+-- import Scheme.Eval.LispError
 import Scheme.Eval.List
 import Scheme.Eval.Unpack 
 

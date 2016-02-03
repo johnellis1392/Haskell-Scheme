@@ -8,7 +8,7 @@ import Control.Monad.Error
 import System.IO
 import Scheme.Eval
 import Scheme.Lex 
-import Scheme.Env 
+-- import Scheme.Env 
 
 
 -- New version of readExpr that handles errors 

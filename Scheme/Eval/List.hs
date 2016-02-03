@@ -3,8 +3,8 @@ module Scheme.Eval.List where
 
 import Control.Monad.Error 
 import Scheme.Lex.LispVal
-import Scheme.Eval.LispError
-import Scheme.Env 
+-- import Scheme.Eval.LispError
+-- import Scheme.Env 
 
 
 -- Get the first element from a list 
